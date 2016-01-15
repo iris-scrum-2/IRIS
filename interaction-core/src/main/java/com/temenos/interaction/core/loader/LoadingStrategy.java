@@ -1,13 +1,7 @@
 package com.temenos.interaction.core.loader;
 
-import java.net.URI;
+import java.util.List;
 
-/**
- *
- * @param <T>
-  */
 public interface LoadingStrategy<T, S> {
-    public void setSource(S source);       
-    public T load(String name);
+    public List<T> load(S source);
 }
-
