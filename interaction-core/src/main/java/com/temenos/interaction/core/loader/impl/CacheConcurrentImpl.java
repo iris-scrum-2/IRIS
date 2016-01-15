@@ -42,4 +42,9 @@ public class CacheConcurrentImpl implements Cache<String, ResourceState> {
     public void removeAll() {
         cache.clear();
     }
+
+    @Override
+    public boolean isEmpty() {
+        return cache.isEmpty();
+    }
 }

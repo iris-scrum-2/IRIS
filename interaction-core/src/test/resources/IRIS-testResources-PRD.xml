@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-3.0.xsd
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       default-lazy-init="true">
+
+
+    <bean id="resourceStateBeanIdTest1" class="com.temenos.interaction.core.hypermedia.ResourceState">
+        <constructor-arg index="0" type="java.lang.String" name="entityName" value="Test1"/>
+        <constructor-arg index="1" type="java.lang.String" name="name" value="Test1"/>
+        <constructor-arg index="2" type="java.util.List" name="actions">
+            <util:list value-type="com.temenos.interaction.core.hypermedia.Action">
+            </util:list>
+        </constructor-arg>
+        <constructor-arg index="3" type="java.lang.String" name="path" value="/"/>
+    </bean>
+    <bean id="resourceStateBeanIdTest2" class="com.temenos.interaction.core.hypermedia.ResourceState">
+        <constructor-arg index="0" type="java.lang.String" name="entityName" value="Test2"/>
+        <constructor-arg index="1" type="java.lang.String" name="name" value="Test2"/>
+        <constructor-arg index="2" type="java.util.List" name="actions">
+            <util:list value-type="com.temenos.interaction.core.hypermedia.Action">
+            </util:list>
+        </constructor-arg>
+        <constructor-arg index="3" type="java.lang.String" name="path" value="/"/>
+    </bean>
+</beans>

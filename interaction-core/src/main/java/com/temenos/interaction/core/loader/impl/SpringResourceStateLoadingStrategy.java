@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,29 +19,26 @@ public class SpringResourceStateLoadingStrategy implements ResourceStateLoadingS
     private final Logger logger = LoggerFactory.getLogger(SpringResourceStateLoadingStrategy.class);
 
     @Override
-    public List<ResourceState> load(String location) {
+    public List<ResourceStateResult> load(String location) {
         checkLocationOrThrowException(location);
         ApplicationContext PrdAppCtx = new ClassPathXmlApplicationContext(location);
-        checkAppCtxOrThrowException(location, PrdAppCtx);
-        List<ResourceState> resourceStates = new ArrayList<ResourceState>();
+        List<ResourceStateResult> resourceStates = new ArrayList<ResourceStateResult>();
         for (Map.Entry<String, ResourceState> springBean : PrdAppCtx.getBeansOfType(ResourceState.class).entrySet()) {
-            resourceStates.add(springBean.getValue());
+            resourceStates.add(new ResourceStateResult(springBean.getKey(), springBean.getValue()));
         }
         logger.info("Resource state loaded from spring configuration xml: " + location);
         return resourceStates;
     }
 
-    private void checkAppCtxOrThrowException(String location, ApplicationContext prdAppCtx) {
-        if (prdAppCtx == null) {
-            logger.error("There is no file in given location or not a spring configuration xml: " + location);
-            throw new IllegalArgumentException("There is no file in given location or not a spring configuration xml: " + location);
-        }
-    }
-
     private void checkLocationOrThrowException(String location) {
-        if (location == null) {
-            logger.error("Passed URI is NULL");
-            throw new IllegalArgumentException("Passed URI is NULL");
+        if (location == null || location.isEmpty()) {
+            final String msg = "Passed URI is NULL or empty";
+            logger.error(msg);
+            throw new IllegalArgumentException(msg);
+        } else if (!Paths.get(location).getFileName().toString().equals(location)) {
+            final String msg = "Spring PRD file location must contain only the filename (no path)";
+            logger.error(msg);
+            throw new IllegalArgumentException(msg);
         }
     }
 }

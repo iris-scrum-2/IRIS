@@ -17,4 +17,6 @@ public interface Cache<K, V> {
     void remove(K key);
 
     void removeAll();
+
+    boolean isEmpty();
 }
