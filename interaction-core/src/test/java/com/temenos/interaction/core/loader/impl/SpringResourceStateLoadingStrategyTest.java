@@ -24,11 +24,12 @@ package com.temenos.interaction.core.loader.impl;
 import com.temenos.interaction.core.loader.ResourceStateLoadingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 
+import java.io.File;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Created by kwieconkowski on 15/01/2016.
@@ -36,6 +37,7 @@ import static org.junit.Assert.assertNotNull;
 public class SpringResourceStateLoadingStrategyTest {
 
     private static final String SPRING_PRD_FILE = "IRIS-testResources-PRD.xml";
+    private static final String SPRING_EMPTY_PRD_FILE = "IRIS-empty-PRD.xml";
     private ResourceStateLoadingStrategy<String> loadingStrategy;
 
     @Before
@@ -48,6 +50,17 @@ public class SpringResourceStateLoadingStrategyTest {
         List<ResourceStateResult> result = loadingStrategy.load(SPRING_PRD_FILE);
         assertNotNull(result);
         assertEquals(2, result.size());
+    }
+
+    @Test
+    public void load_emptyFile_shouldReturnEmptyList() {
+        List<ResourceStateResult> result = loadingStrategy.load(SPRING_EMPTY_PRD_FILE);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test(expected = BeanDefinitionStoreException.class)
+    public void load_fileNotExist_shouldThrowException() {
+        List<ResourceStateResult> result = loadingStrategy.load("123.xml");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -63,7 +76,7 @@ public class SpringResourceStateLoadingStrategyTest {
     @Test(expected = IllegalArgumentException.class)
     public void load_locationWithPath_shouldThrowException() {
         try {
-            List<ResourceStateResult> result = loadingStrategy.load("\\/" + SPRING_PRD_FILE);
+            List<ResourceStateResult> result = loadingStrategy.load(File.separator + SPRING_PRD_FILE);
         } catch (IllegalArgumentException e) {
             assertEquals("Spring PRD file location must contain only the filename (no path)", e.getMessage());
             throw e;

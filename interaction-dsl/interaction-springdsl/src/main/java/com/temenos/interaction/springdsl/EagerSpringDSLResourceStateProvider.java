@@ -1,7 +1,27 @@
 package com.temenos.interaction.springdsl;
 
+/*
+ * #%L
+ * interaction-core
+ * %%
+ * Copyright (C) 2012 - 2016 Temenos Holdings N.V.
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * #L%
+ */
+
 import com.temenos.interaction.core.hypermedia.ResourceState;
-import com.temenos.interaction.core.loader.Action;
 import com.temenos.interaction.core.loader.Cache;
 import com.temenos.interaction.core.loader.ResourceStateLoadingStrategy;
 import com.temenos.interaction.core.loader.impl.CacheConcurrentImpl;
@@ -22,7 +42,7 @@ import java.util.Properties;
 /**
  * Created by kwieconkowski on 14/01/2016.
  */
-public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateProvider implements Action<Properties> {
+public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateProvider {
     private final Logger logger = LoggerFactory.getLogger(EagerSpringDSLResourceStateProvider.class);
 
     private final Cache<String, ResourceState> cache = new CacheConcurrentImpl();
@@ -30,7 +50,7 @@ public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateP
     private String[] PRDconfigurationFileSources;
     private ResourceStateLoadingStrategy<String> loadingStrategy;
 
-    //"classpath*:/src-gen/**/IRIS-*-PRD.xml"
+    //"classpath*:/**/IRIS-*-PRD.xml"
     public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoadingStrategy<String> loadingStrategy) {
         this.antStylePattern = antStylePattern;
         this.loadingStrategy = loadingStrategy;
@@ -38,7 +58,7 @@ public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateP
         loadAllResourceStates();
     }
 
-    //"classpath*:/src-gen/**/IRIS-*-PRD.xml"
+    //"classpath*:/**/IRIS-*-PRD.xml"
     public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoadingStrategy<String> loadingStrategy, Properties beanMap) {
         super(beanMap);
         this.antStylePattern = antStylePattern;
@@ -54,8 +74,30 @@ public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateP
     @Override
     public ResourceState getResourceState(String resourceStateName) {
         ResourceState resourceState = cache.get(resourceStateName);
-        if (resourceState == null) {
+        if (resourceState == null && getResourceStateOldFormat(resourceStateName) == null) {
             logger.error("Could not find resource state with name: " + resourceStateName);
+        }
+        return resourceState;
+    }
+
+    private ResourceState getResourceStateOldFormat(String resourceStateName) {
+        ResourceState resourceState = null;
+        String newResourceStateName = resourceStateName;
+
+        if (newResourceStateName.contains("-")) {
+            newResourceStateName = newResourceStateName.substring(0, newResourceStateName.indexOf("-"));
+            resourceState = cache.get(newResourceStateName);
+        }
+
+        if (resourceState == null) {
+            int pos = newResourceStateName.lastIndexOf("-");
+            if (pos < 0) {
+                pos = newResourceStateName.lastIndexOf("_");
+                if (pos > 0) {
+                    newResourceStateName = String.format("{0}-{1}", newResourceStateName.substring(0, pos), newResourceStateName.substring(pos + 1));
+                    resourceState = cache.get(newResourceStateName);
+                }
+            }
         }
         return resourceState;
     }
@@ -63,6 +105,23 @@ public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateP
     @Override
     public void unload(String resourceStateName) {
         cache.remove(resourceStateName);
+    }
+
+    @Override
+    public void addState(String stateName, Properties properties) {
+        String[] methodAndPath = properties.getProperty(stateName).split(" ");
+        String.format("Attempting to register state: {0}, methods: {1}, path: {2}, using state registeration: {3}",
+                stateName, methodAndPath[0].split(","), methodAndPath[1],
+                stateRegisteration != null ? stateRegisteration : "NULL");
+
+        if (!loadResourceStatesFromPRD(discoverLocationOfPrdByResourceStateName(stateName, false))
+                && !loadResourceStatesFromPRD(discoverLocationOfPrdByResourceStateName(stateName, true))) {
+            logger.error("Any discovered path pattern is valid");
+            return;
+        }
+        storeState(stateName, properties.getProperty(stateName));
+        // TODO: implement stateRegisteration
+        // this.stateRegisteration.register(stateName, path, new HashSet<String>(Arrays.asList(methods)));
     }
 
     @Override
@@ -79,18 +138,43 @@ public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateP
         }
     }
 
-    private void loadResourceStatesFromPRD(String prdLocation) {
+    private String discoverLocationOfPrdByResourceStateName(String resourceStateName, boolean oldFormat) {
+        String pathToPRD = null;
+        String newResourceStateName = resourceStateName;
+
+        if (newResourceStateName.contains("-")) {
+            newResourceStateName = newResourceStateName.substring(0, newResourceStateName.indexOf("-"));
+        }
+
+        if (!oldFormat) {
+            pathToPRD = String.format("IRIS-{0}-PRD.xml", newResourceStateName);
+        }
+
+        int position = newResourceStateName.lastIndexOf("_");
+        if (position > 3) {
+            pathToPRD = String.format("IRIS-{0}-PRD.xml", newResourceStateName.substring(0, position));
+        }
+
+        return pathToPRD;
+    }
+
+    private boolean loadResourceStatesFromPRD(String prdLocation) {
         List<ResourceStateResult> resourceStates = null;
         Map<String, ResourceState> tmp = new HashMap<String, ResourceState>();
 
+        if (prdLocation == null) {
+            return false;
+        }
         resourceStates = loadingStrategy.load(prdLocation);
-        if (resourceStates == null) {
+        if (resourceStates.isEmpty()) {
             logger.warn("Could not find any resources with file pattern: " + prdLocation);
+            return false;
         }
         for (ResourceStateResult resourceStateResult : resourceStates) {
             tmp.put(resourceStateResult.beanName, resourceStateResult.resourceState);
         }
         cache.putAll(tmp);
+        return true;
     }
 
     public void discoverAllPrdFiles() {
@@ -110,61 +194,5 @@ public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateP
             logger.error("IOException loading Spring PRD files using eager strategy", e);
             throw new IllegalStateException("IOException loading Spring PRD files using eager strategy", e);
         }
-    }
-
-    /* TODO implment this method */
-    public String discoverPrdFileFromResourceState(String resourceStateName) {
-
-        String beanXml = String.format("IRIS-{0}-PRD.xml", resourceStateName.contains("-")
-                ? resourceStateName.substring(0, resourceStateName.indexOf("-")) : resourceStateName);
-
-    /*
-        // Attempt to create Spring context based on current resource filename pattern
-        ApplicationContext context = createApplicationContext(beanXml);
-
-        if (context == null) {
-            // Failed to create Spring context using current resource filename pattern so use old pattern
-            int pos = tmpResourceName.lastIndexOf("_");
-
-            if (pos > 3){
-                tmpResourceName = tmpResourceName.substring(0, pos);
-                beanXml = "IRIS-" + tmpResourceName + "-PRD.xml";
-
-                context = createApplicationContext(beanXml);
-
-                if (context != null) {
-                    // Successfully created Spring context using old resource filename pattern
-
-                    // Convert resource state name to old resource name format
-                    pos = tmpResourceStateName.lastIndexOf("-");
-
-                    if (pos < 0){
-                        pos = tmpResourceStateName.lastIndexOf("_");
-
-                        if (pos > 0){
-                            tmpResourceStateName = tmpResourceStateName.substring(0, pos) + "-" + tmpResourceStateName.substring(pos+1);
-                        }
-                    }
-                }
-            }
-        }
-
-        if(context != null) {
-            result = loadAllResourceStatesFromFile(context, tmpResourceStateName);
-        }
-        */
-        return null;
-    }
-
-    @Override
-    /* TODO: correct next day */
-    public void execute(Properties properties) {
-        String prdLocation = (String) properties.getProperty("Mode");
-
-        for (Object key : properties.keySet()) {
-            unload(key.toString());
-        }
-        // reloardPRDfile(map.get(key.toString()));
-        // loadResourceStatesFromPRD(prdLocation);
     }
 }
