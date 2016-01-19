@@ -22,6 +22,7 @@ package com.temenos.interaction.springdsl;
  */
 
 import com.temenos.interaction.core.hypermedia.ResourceState;
+import com.temenos.interaction.core.hypermedia.ResourceStateProvider;
 import com.temenos.interaction.core.loader.impl.CacheConcurrentImpl;
 import com.temenos.interaction.core.loader.impl.SpringResourceStateLoadingStrategy;
 import org.junit.Before;
@@ -31,7 +32,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -97,7 +100,22 @@ public class TestEagerSpringDSLResourceStateProvider extends TestSpringDSLResour
         assertTrue(springDSLResourceStateProvider.isLoaded("SimpleModel_Home_home"));
     }
 
+    @Test
+    public void testGetResourceStatesByPath() {
+        Properties properties = new Properties();
+        properties.put("SimpleModel_Home_home", "GET /test");
+        ResourceStateProvider rsp = getDefaultClass(properties);
+        Map<String, Set<String>> statesByPath = rsp.getResourceStatesByPath();
+        assertEquals(1, statesByPath.size());
+        assertEquals(1, statesByPath.get("/test").size());
+        assertEquals("SimpleModel_Home_home", statesByPath.get("/test").toArray()[0]);
+    }
+
     private EagerSpringDSLResourceStateProvider getDefaultClass() {
         return new EagerSpringDSLResourceStateProvider("classpath*:/**/IRIS-*-PRD.xml", new SpringResourceStateLoadingStrategy(), new CacheConcurrentImpl());
+    }
+
+    private EagerSpringDSLResourceStateProvider getDefaultClass(Properties properties) {
+        return new EagerSpringDSLResourceStateProvider("classpath*:/**/IRIS-*-PRD.xml", new SpringResourceStateLoadingStrategy(), new CacheConcurrentImpl(), properties);
     }
 }

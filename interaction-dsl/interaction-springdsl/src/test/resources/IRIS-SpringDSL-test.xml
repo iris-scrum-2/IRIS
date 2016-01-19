@@ -48,13 +48,10 @@
 
 	<bean id="springDSLResourceStateProvider"
 		  class="com.temenos.interaction.springdsl.EagerSpringDSLResourceStateProvider">
-		<constructor-arg name="antStylePattern" index="0" type="java.lang.String"
-						 value="classpath*:/**/IRIS-*-PRD.xml"/>
-		<constructor-arg name="loadingStrategy" index="1"
-						 type="com.temenos.interaction.core.loader.ResourceStateLoadingStrategy"
-						 ref="LoadingStrategyDefault"/>
-		<constructor-arg name="cache" index="2" type="com.temenos.interaction.core.loader.Cache" ref="CacheDefault"/>
-		<constructor-arg name="beanMap" index="3" type="java.util.Properties" ref="resourceMap"/>
+		<constructor-arg name="antStylePattern" value="classpath*:/**/IRIS-*-PRD.xml"/>
+		<constructor-arg name="loadingStrategy" ref="LoadingStrategyDefault"/>
+		<constructor-arg name="cache" ref="CacheDefault"/>
+		<constructor-arg name="beanMap" ref="resourceMap"/>
 	</bean>
 
 </beans>
