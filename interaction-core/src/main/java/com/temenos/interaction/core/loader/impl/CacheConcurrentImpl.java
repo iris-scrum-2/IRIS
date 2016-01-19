@@ -21,7 +21,6 @@ package com.temenos.interaction.core.loader.impl;
  * #L%
  */
 
-import com.temenos.interaction.core.hypermedia.ResourceState;
 import com.temenos.interaction.core.loader.Cache;
 
 import java.util.Map;
@@ -29,33 +28,37 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
+ * Implementation of a cache using a ConcurrentHashMap.
+ * 
  * @author kwieconkowski
+ * @author andres
+ * @author dgroves
  */
-public class CacheConcurrentImpl implements Cache<String, ResourceState> {
-    private ConcurrentMap<String, ResourceState> cache = new ConcurrentHashMap<String, ResourceState>();
+public class CacheConcurrentImpl<K, V> implements Cache<K, V> {
+    private ConcurrentMap<K, V> cache = new ConcurrentHashMap<K, V>();
 
     @Override
-    public void put(String key, ResourceState value) {
+    public void put(K key, V value) {
         cache.put(key, value);
     }
 
     @Override
-    public void put(String key, ResourceState value, int ageInSeconds) {
+    public void put(K key, V value, int ageInSeconds) {
         throw new UnsupportedOperationException("Not supported operation for this implementation");
     }
 
     @Override
-    public void putAll(Map<String, ResourceState> keyValueMap) {
+    public void putAll(Map<K, V> keyValueMap) {
         cache.putAll(keyValueMap);
     }
 
     @Override
-    public ResourceState get(String key) {
+    public V get(K key) {
         return cache.get(key);
     }
 
     @Override
-    public void remove(String key) {
+    public void remove(K key) {
         cache.remove(key);
     }
 

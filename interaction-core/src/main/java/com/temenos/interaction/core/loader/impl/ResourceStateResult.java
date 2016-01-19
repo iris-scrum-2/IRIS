@@ -24,14 +24,19 @@ package com.temenos.interaction.core.loader.impl;
 import com.temenos.interaction.core.hypermedia.ResourceState;
 
 /**
+ * Class grouping a ResourceState and a its id. Needed for keeping the bean id
+ * when loading from PRD files.
+ * 
  * @author kwieconkowski
+ * @author andres
+ * @author dgroves
  */
 public class ResourceStateResult {
-    public final String beanName;
+    public final String resourceStateId;
     public final ResourceState resourceState;
 
-    public ResourceStateResult(String beanName, ResourceState resourceState) {
-        this.beanName = beanName;
+    public ResourceStateResult(String resourceStateId, ResourceState resourceState) {
+        this.resourceStateId = resourceStateId;
         this.resourceState = resourceState;
     }
 }

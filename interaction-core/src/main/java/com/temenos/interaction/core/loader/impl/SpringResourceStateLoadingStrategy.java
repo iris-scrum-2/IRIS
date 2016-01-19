@@ -34,7 +34,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Loads a list of ResourceState from a location, which should be a filename
+ * without a path. This is for compatibility with the Spring class
+ * ClassPathXmlApplicationContext.
+ * 
  * @author kwieconkowski
+ * @author andres
+ * @author dgroves
  */
 public class SpringResourceStateLoadingStrategy implements ResourceStateLoadingStrategy<String> {
     private final Logger logger = LoggerFactory.getLogger(SpringResourceStateLoadingStrategy.class);

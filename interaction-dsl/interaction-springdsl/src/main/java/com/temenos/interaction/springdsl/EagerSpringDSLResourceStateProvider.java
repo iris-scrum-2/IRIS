@@ -36,7 +36,17 @@ import java.nio.file.Paths;
 import java.util.*;
 
 /**
+ * Provider of ResourceState that loads all of them at instantiation time from
+ * the PRD files matching the ant style pattern. It allows to plug-in different
+ * cache strategies, as well as loading strategies (although the only loading
+ * strategy that makes sense here is a Spring one).
+ * 
+ * The class currently extends SpringDSLResourceStateProvider for code re-usage.
+ * This is a temporary solution until major re-factoring is done. 
+ * 
  * @author kwieconkowski
+ * @author andres
+ * @author dgroves
  */
 public final class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateProvider {
     private final Logger logger = LoggerFactory.getLogger(EagerSpringDSLResourceStateProvider.class);
@@ -56,7 +66,6 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
         this.loadingStrategy = loadingStrategy;
         this.cache = cache;
         PRDconfigurationFileSources = new LinkedHashSet();
-        logger.error("Eager constructor");
         discoverAllPrdFiles();
         loadAllResourceStates();
     }
@@ -67,7 +76,7 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
 
     @Override
     public ResourceState getResourceState(String resourceStateName) {
-        logger.error("Getting resource state: " + resourceStateName);
+        logger.info("Getting resource state: " + resourceStateName);
         ResourceState resourceState = getResourceStateByNameOrByOldFormatName(resourceStateName);
         if (resourceState == null) {
             logger.error("Could not find resource state with name: " + resourceStateName);
@@ -166,14 +175,14 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
         if (prdLocation == null) {
             return false;
         }
-        logger.error("Loading PRD file: " + prdLocation);
+        logger.info("Loading PRD file: " + prdLocation);
         resourceStates = loadingStrategy.load(prdLocation);
         if (resourceStates == null) {
             logger.warn("Could not find any resources with file pattern: " + prdLocation);
             return false;
         }
         for (ResourceStateResult resourceStateResult : resourceStates) {
-            tmp.put(resourceStateResult.beanName, resourceStateResult.resourceState);
+            tmp.put(resourceStateResult.resourceStateId, resourceStateResult.resourceState);
         }
         cache.putAll(tmp);
         return true;
@@ -190,14 +199,15 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
                 for (int i = 0; i < locationsPRD.length; i++) {
                     fileName = Paths.get(locationsPRD[i].getURI().getPath().substring(1)).getFileName().toString();
                     PRDconfigurationFileSources.add(fileName);
-                    logger.error("Discovered path to PRD file: " + fileName);
+                    logger.info("Discovered path to PRD file: " + fileName);
                 }
             } else {
                 logger.warn("Spring DSL eager loading strategy default, could not found any PRD spring configuration xml files");
             }
         } catch (IOException e) {
-            logger.error("IOException loading Spring PRD files using eager strategy", e);
-            throw new IllegalStateException("IOException loading Spring PRD files using eager strategy", e);
+            String msg = "IOException loading Spring PRD files using eager strategy";
+            logger.error(msg, e);
+            throw new IllegalStateException(msg, e);
         }
     }
 }

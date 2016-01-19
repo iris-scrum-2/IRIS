@@ -24,7 +24,11 @@ package com.temenos.interaction.core.loader;
 import java.util.Map;
 
 /**
+ * Interface for caching objects with the option of specifying their life time.
+ * 
  * @author kwieconkowski
+ * @author andres
+ * @author dgroves
  */
 public interface Cache<K, V> {
     void put(K key, V value);
