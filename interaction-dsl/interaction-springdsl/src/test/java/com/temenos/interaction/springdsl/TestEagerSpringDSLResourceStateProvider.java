@@ -24,6 +24,7 @@ package com.temenos.interaction.springdsl;
 import com.temenos.interaction.core.hypermedia.ResourceState;
 import com.temenos.interaction.core.loader.impl.CacheConcurrentImpl;
 import com.temenos.interaction.core.loader.impl.SpringResourceStateLoadingStrategy;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,15 @@ public class TestEagerSpringDSLResourceStateProvider extends TestSpringDSLResour
 
     @Autowired
     private EagerSpringDSLResourceStateProvider springDSLResourceStateProvider;
+    private boolean initialized;
+
+    @Before
+    public void setUp() throws Exception {
+        if (!initialized) {
+            initialized = true;
+            resourceStateProvider = springDSLResourceStateProvider;
+        }
+    }
 
     @Test
     public void testGetResourceState() {
@@ -54,6 +64,7 @@ public class TestEagerSpringDSLResourceStateProvider extends TestSpringDSLResour
 
     @Test
     public void testUnload() {
+        EagerSpringDSLResourceStateProvider springDSLResourceStateProvider = getDefaultClass();
         ResourceState resourceState;
         final String beanName = "SimpleModel_Home-home";
 
@@ -66,7 +77,7 @@ public class TestEagerSpringDSLResourceStateProvider extends TestSpringDSLResour
 
     @Test
     public void testAddState() {
-        EagerSpringDSLResourceStateProvider springDSLResourceStateProvider = new EagerSpringDSLResourceStateProvider("classpath*:/**/IRIS-*-PRD.xml", new SpringResourceStateLoadingStrategy(), new CacheConcurrentImpl());
+        EagerSpringDSLResourceStateProvider springDSLResourceStateProvider = getDefaultClass();
         springDSLResourceStateProvider.stateRegisteration = mock(StateRegisteration.class);
 
         final String resourceStateName = "SimpleModel_Home_home-ServiceDocument";
@@ -84,5 +95,9 @@ public class TestEagerSpringDSLResourceStateProvider extends TestSpringDSLResour
     @Test
     public void testIsLoaded() {
         assertTrue(springDSLResourceStateProvider.isLoaded("SimpleModel_Home_home"));
+    }
+
+    private EagerSpringDSLResourceStateProvider getDefaultClass() {
+        return new EagerSpringDSLResourceStateProvider("classpath*:/**/IRIS-*-PRD.xml", new SpringResourceStateLoadingStrategy(), new CacheConcurrentImpl());
     }
 }

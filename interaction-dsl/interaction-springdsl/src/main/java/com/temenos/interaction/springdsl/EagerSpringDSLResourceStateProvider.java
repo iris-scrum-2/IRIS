@@ -71,18 +71,19 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
 
     @Override
     public ResourceState getResourceState(String resourceStateName) {
-        ResourceState resourceState = cache.get(resourceStateName);
+        ResourceState resourceState = getResourceStateByNameOrByOldFormatName(resourceStateName);
         if (resourceState == null) {
-            // checking also for old format name
-            resourceState = getResourceStateOldFormat(resourceStateName);
-            if (resourceState == null) {
-                logger.error("Could not find resource state with name: " + resourceStateName);
-            }
+            logger.error("Could not find resource state with name: " + resourceStateName);
         }
         return resourceState;
     }
 
-    private ResourceState getResourceStateOldFormat(String resourceStateName) {
+    private ResourceState getResourceStateByNameOrByOldFormatName(String resourceStateName) {
+        ResourceState resourceState = cache.get(resourceStateName);
+        return resourceState != null ? resourceState : getResourceStateByOldFormat(resourceStateName);
+    }
+
+    private ResourceState getResourceStateByOldFormat(String resourceStateName) {
         ResourceState resourceState = null;
         String newResourceStateName = resourceStateName;
 
@@ -113,17 +114,18 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
     public void addState(String stateName, Properties properties) {
         String[] methodAndPath = properties.getProperty(stateName).split(" ");
         String[] methods = methodAndPath[0].split(",");
+        String path = methodAndPath[1];
         logger.info(String.format("Attempting to register state: %s, methods: %s, path: %s, using state registeration: %s",
-                stateName, methods, methodAndPath[1],
-                stateRegisteration != null ? stateRegisteration : "NULL"));
+                stateName, methods, path, stateRegisteration != null ? stateRegisteration : "NULL"));
 
         if (!loadResourceStatesFromPRD(discoverLocationOfPrdByResourceStateName(stateName, false))
                 && !loadResourceStatesFromPRD(discoverLocationOfPrdByResourceStateName(stateName, true))) {
             logger.error("Any discovered path pattern is valid");
             return;
         }
+        // populate maps in parent class from properties files
         storeState(stateName, properties.getProperty(stateName));
-        stateRegisteration.register(stateName, methodAndPath[1], new HashSet<String>(Arrays.asList(methods)));
+        stateRegisteration.register(stateName, path, new HashSet<String>(Arrays.asList(methods)));
     }
 
     @Override
@@ -131,8 +133,8 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
         return (cache.get(resourceStateName) != null);
     }
 
+    /* Reload resource states from prd files (clear old ones from cache before) */
     private synchronized void loadAllResourceStates() {
-        // we assume we do not want to keep ResourceStates that are not defined on PRD files
         cache.removeAll();
 
         for (String locationOfPRD : PRDconfigurationFileSources) {
