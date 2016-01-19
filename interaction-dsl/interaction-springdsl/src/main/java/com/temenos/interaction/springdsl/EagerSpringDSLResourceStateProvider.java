@@ -10,12 +10,12 @@ package com.temenos.interaction.springdsl;
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
@@ -56,7 +56,6 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
         this.loadingStrategy = loadingStrategy;
         this.cache = cache;
         PRDconfigurationFileSources = new LinkedHashSet();
-        logger.error("Eager constructor");
         discoverAllPrdFiles();
         loadAllResourceStates();
     }
@@ -67,7 +66,7 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
 
     @Override
     public ResourceState getResourceState(String resourceStateName) {
-        logger.error("Getting resource state: " + resourceStateName);
+        logger.info("Getting resource state: " + resourceStateName);
         ResourceState resourceState = getResourceStateByNameOrByOldFormatName(resourceStateName);
         if (resourceState == null) {
             logger.error("Could not find resource state with name: " + resourceStateName);
@@ -166,7 +165,7 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
         if (prdLocation == null) {
             return false;
         }
-        logger.error("Loading PRD file: " + prdLocation);
+        logger.info("Loading PRD file: " + prdLocation);
         resourceStates = loadingStrategy.load(prdLocation);
         if (resourceStates == null) {
             logger.warn("Could not find any resources with file pattern: " + prdLocation);
@@ -190,7 +189,7 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
                 for (int i = 0; i < locationsPRD.length; i++) {
                     fileName = Paths.get(locationsPRD[i].getURI().getPath().substring(1)).getFileName().toString();
                     PRDconfigurationFileSources.add(fileName);
-                    logger.error("Discovered path to PRD file: " + fileName);
+                    logger.info("Discovered path to PRD file: " + fileName);
                 }
             } else {
                 logger.warn("Spring DSL eager loading strategy default, could not found any PRD spring configuration xml files");
