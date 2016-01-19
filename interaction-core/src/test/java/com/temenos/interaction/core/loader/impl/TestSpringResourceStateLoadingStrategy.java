@@ -22,9 +22,7 @@ package com.temenos.interaction.core.loader.impl;
  */
 
 import com.temenos.interaction.core.loader.ResourceStateLoadingStrategy;
-import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
 
 import java.io.File;
 import java.util.List;
@@ -32,18 +30,14 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * Created by kwieconkowski on 15/01/2016.
+ * @author kwieconkowski
  */
-public class SpringResourceStateLoadingStrategyTest {
+public class TestSpringResourceStateLoadingStrategy {
 
     private static final String SPRING_PRD_FILE = "IRIS-testResources-PRD.xml";
     private static final String SPRING_EMPTY_PRD_FILE = "IRIS-empty-PRD.xml";
-    private ResourceStateLoadingStrategy<String> loadingStrategy;
-
-    @Before
-    public void setUp() {
-        loadingStrategy = new SpringResourceStateLoadingStrategy();
-    }
+    private ResourceStateLoadingStrategy<String> loadingStrategy = new SpringResourceStateLoadingStrategy();
+    ;
 
     @Test
     public void load_shouldReturnFilledList() {
@@ -58,9 +52,9 @@ public class SpringResourceStateLoadingStrategyTest {
         assertTrue(result.isEmpty());
     }
 
-    @Test(expected = BeanDefinitionStoreException.class)
-    public void load_fileNotExist_shouldThrowException() {
-        List<ResourceStateResult> result = loadingStrategy.load("123.xml");
+    @Test
+    public void load_fileNotExist_shouldRetrunNull() {
+        assertNull(loadingStrategy.load("123.xml"));
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -34,9 +34,9 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 /**
- * Created by kwieconkowski on 15/01/2016.
+ * @author kwieconkowski
  */
-public class CacheConcurrentImplTest {
+public class TestCacheConcurrentImpl {
 
     private Cache<String, ResourceState> cache;
 

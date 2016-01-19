@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Created by kwieconkowski on 14/01/2016.
+ * @author kwieconkowski
  */
 public class CacheConcurrentImpl implements Cache<String, ResourceState> {
     private ConcurrentMap<String, ResourceState> cache = new ConcurrentHashMap<String, ResourceState>();

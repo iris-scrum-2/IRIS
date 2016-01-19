@@ -24,7 +24,7 @@ package com.temenos.interaction.core.loader;
 import java.util.Map;
 
 /**
- * Created by kwieconkowski on 14/01/2016.
+ * @author kwieconkowski
  */
 public interface Cache<K, V> {
     void put(K key, V value);

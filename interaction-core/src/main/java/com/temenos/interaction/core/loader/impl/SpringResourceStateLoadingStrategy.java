@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by kwieconkowski on 13/01/2016.
+ * @author kwieconkowski
  */
 public class SpringResourceStateLoadingStrategy implements ResourceStateLoadingStrategy<String> {
     private final Logger logger = LoggerFactory.getLogger(SpringResourceStateLoadingStrategy.class);
@@ -42,13 +42,26 @@ public class SpringResourceStateLoadingStrategy implements ResourceStateLoadingS
     @Override
     public List<ResourceStateResult> load(String location) {
         checkLocationOrThrowException(location);
-        ApplicationContext PrdAppCtx = new ClassPathXmlApplicationContext(location);
+        ApplicationContext PrdAppCtx = loadSpringContex(location);
+        if (PrdAppCtx == null) {
+            logger.warn("File not found while loading spring configuration in location: " + location);
+            return null;
+        }
         List<ResourceStateResult> resourceStates = new ArrayList<ResourceStateResult>();
         for (Map.Entry<String, ResourceState> springBean : PrdAppCtx.getBeansOfType(ResourceState.class).entrySet()) {
             resourceStates.add(new ResourceStateResult(springBean.getKey(), springBean.getValue()));
         }
         logger.info("Resource state loaded from spring configuration xml: " + location);
         return resourceStates;
+    }
+
+    private ApplicationContext loadSpringContex(String location) {
+        ApplicationContext PrdAppCtx = null;
+        try {
+            PrdAppCtx = new ClassPathXmlApplicationContext(location);
+        } catch (Exception e) {
+        }
+        return PrdAppCtx;
     }
 
     private void checkLocationOrThrowException(String location) {

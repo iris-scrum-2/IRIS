@@ -36,7 +36,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * Created by kwieconkowski on 14/01/2016.
+ * @author kwieconkowski
  */
 public final class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateProvider {
     private final Logger logger = LoggerFactory.getLogger(EagerSpringDSLResourceStateProvider.class);
@@ -96,7 +96,7 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
             if (pos < 0) {
                 pos = newResourceStateName.lastIndexOf("_");
                 if (pos > 0) {
-                    newResourceStateName = String.format("{0}-{1}", newResourceStateName.substring(0, pos), newResourceStateName.substring(pos + 1));
+                    newResourceStateName = String.format("%s-%s", newResourceStateName.substring(0, pos), newResourceStateName.substring(pos + 1));
                     resourceState = cache.get(newResourceStateName);
                 }
             }
@@ -113,9 +113,9 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
     public void addState(String stateName, Properties properties) {
         String[] methodAndPath = properties.getProperty(stateName).split(" ");
         String[] methods = methodAndPath[0].split(",");
-        String.format("Attempting to register state: {0}, methods: {1}, path: {2}, using state registeration: {3}",
+        logger.info(String.format("Attempting to register state: %s, methods: %s, path: %s, using state registeration: %s",
                 stateName, methods, methodAndPath[1],
-                stateRegisteration != null ? stateRegisteration : "NULL");
+                stateRegisteration != null ? stateRegisteration : "NULL"));
 
         if (!loadResourceStatesFromPRD(discoverLocationOfPrdByResourceStateName(stateName, false))
                 && !loadResourceStatesFromPRD(discoverLocationOfPrdByResourceStateName(stateName, true))) {
@@ -131,7 +131,7 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
         return (cache.get(resourceStateName) != null);
     }
 
-    protected synchronized void loadAllResourceStates() {
+    private synchronized void loadAllResourceStates() {
         // we assume we do not want to keep ResourceStates that are not defined on PRD files
         cache.removeAll();
 
@@ -149,12 +149,12 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
         }
 
         if (!oldFormat) {
-            pathToPRD = String.format("IRIS-{0}-PRD.xml", newResourceStateName);
+            pathToPRD = String.format("IRIS-%s-PRD.xml", newResourceStateName);
         }
 
         int position = newResourceStateName.lastIndexOf("_");
         if (position > 3) {
-            pathToPRD = String.format("IRIS-{0}-PRD.xml", newResourceStateName.substring(0, position));
+            pathToPRD = String.format("IRIS-%s-PRD.xml", newResourceStateName.substring(0, position));
         }
 
         return pathToPRD;
@@ -168,7 +168,7 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
             return false;
         }
         resourceStates = loadingStrategy.load(prdLocation);
-        if (resourceStates.isEmpty()) {
+        if (resourceStates == null) {
             logger.warn("Could not find any resources with file pattern: " + prdLocation);
             return false;
         }
@@ -179,7 +179,7 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
         return true;
     }
 
-    public void discoverAllPrdFiles() {
+    private void discoverAllPrdFiles() {
         final ResourcePatternResolver patternResolver = new PathMatchingResourcePatternResolver();
         final Resource[] locationsPRD;
         try {
