@@ -2,7 +2,7 @@ package com.temenos.interaction.springdsl;
 
 /*
  * #%L
- * interaction-core
+ * interaction-springdsl
  * %%
  * Copyright (C) 2012 - 2016 Temenos Holdings N.V.
  * %%
@@ -24,7 +24,6 @@ package com.temenos.interaction.springdsl;
 import com.temenos.interaction.core.hypermedia.ResourceState;
 import com.temenos.interaction.core.loader.Cache;
 import com.temenos.interaction.core.loader.ResourceStateLoadingStrategy;
-import com.temenos.interaction.core.loader.impl.CacheConcurrentImpl;
 import com.temenos.interaction.core.loader.impl.ResourceStateResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,35 +33,34 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by kwieconkowski on 14/01/2016.
  */
-public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateProvider {
+public final class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateProvider {
     private final Logger logger = LoggerFactory.getLogger(EagerSpringDSLResourceStateProvider.class);
 
-    private final Cache<String, ResourceState> cache = new CacheConcurrentImpl();
+    private final Cache<String, ResourceState> cache;
     private final String antStylePattern;
     private String[] PRDconfigurationFileSources;
     private ResourceStateLoadingStrategy<String> loadingStrategy;
 
     //"classpath*:/**/IRIS-*-PRD.xml"
-    public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoadingStrategy<String> loadingStrategy) {
+    public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoadingStrategy<String> loadingStrategy, Cache<String, ResourceState> cache) {
         this.antStylePattern = antStylePattern;
         this.loadingStrategy = loadingStrategy;
+        this.cache = cache;
         discoverAllPrdFiles();
         loadAllResourceStates();
     }
 
     //"classpath*:/**/IRIS-*-PRD.xml"
-    public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoadingStrategy<String> loadingStrategy, Properties beanMap) {
+    public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoadingStrategy<String> loadingStrategy, Cache<String, ResourceState> cache, Properties beanMap) {
         super(beanMap);
         this.antStylePattern = antStylePattern;
         this.loadingStrategy = loadingStrategy;
+        this.cache = cache;
         discoverAllPrdFiles();
         loadAllResourceStates();
     }
@@ -74,8 +72,12 @@ public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateP
     @Override
     public ResourceState getResourceState(String resourceStateName) {
         ResourceState resourceState = cache.get(resourceStateName);
-        if (resourceState == null && getResourceStateOldFormat(resourceStateName) == null) {
-            logger.error("Could not find resource state with name: " + resourceStateName);
+        if (resourceState == null) {
+            // checking also for old format name
+            resourceState = getResourceStateOldFormat(resourceStateName);
+            if (resourceState == null) {
+                logger.error("Could not find resource state with name: " + resourceStateName);
+            }
         }
         return resourceState;
     }
@@ -110,8 +112,9 @@ public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateP
     @Override
     public void addState(String stateName, Properties properties) {
         String[] methodAndPath = properties.getProperty(stateName).split(" ");
+        String[] methods = methodAndPath[0].split(",");
         String.format("Attempting to register state: {0}, methods: {1}, path: {2}, using state registeration: {3}",
-                stateName, methodAndPath[0].split(","), methodAndPath[1],
+                stateName, methods, methodAndPath[1],
                 stateRegisteration != null ? stateRegisteration : "NULL");
 
         if (!loadResourceStatesFromPRD(discoverLocationOfPrdByResourceStateName(stateName, false))
@@ -120,8 +123,7 @@ public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateP
             return;
         }
         storeState(stateName, properties.getProperty(stateName));
-        // TODO: implement stateRegisteration
-        // this.stateRegisteration.register(stateName, path, new HashSet<String>(Arrays.asList(methods)));
+        stateRegisteration.register(stateName, methodAndPath[1], new HashSet<String>(Arrays.asList(methods)));
     }
 
     @Override
