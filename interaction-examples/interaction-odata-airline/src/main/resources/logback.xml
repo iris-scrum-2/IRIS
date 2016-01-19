@@ -70,9 +70,9 @@
     <level value="WARN" />
     <appender-ref ref="STDOUT"/>
   </logger>
- 
+
   <logger name="com.temenos.interaction.springdsl">
-    <level value="INFO" />
+    <level value="INFO"/>
     <appender-ref ref="STDOUT"/>
   </logger>
   

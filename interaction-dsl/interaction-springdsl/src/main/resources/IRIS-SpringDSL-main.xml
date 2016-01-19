@@ -50,7 +50,8 @@
 		<property name="resourceMap" ref="defaultResources"/>
 	</bean>
 
-	<bean id="eagerStateProvider" class="com.temenos.interaction.springdsl.EagerSpringDSLResourceStateProvider">
+	<bean id="eagerStateProvider" class="com.temenos.interaction.springdsl.EagerSpringDSLResourceStateProvider"
+		  lazy-init="true">
 		<constructor-arg name="antStylePattern" value="classpath*:/**/IRIS-*-PRD.xml"/>
 		<constructor-arg name="loadingStrategy" ref="LoadingStrategyDefault"/>
 		<constructor-arg name="cache" ref="CacheDefault"/>
