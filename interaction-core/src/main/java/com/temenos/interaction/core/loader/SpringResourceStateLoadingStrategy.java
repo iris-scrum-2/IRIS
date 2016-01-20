@@ -58,7 +58,7 @@ public class SpringResourceStateLoadingStrategy implements ResourceStateLoadingS
         for (Map.Entry<String, ResourceState> springBean : PrdAppCtx.getBeansOfType(ResourceState.class).entrySet()) {
             resourceStates.add(new ResourceStateResult(springBean.getKey(), springBean.getValue()));
         }
-        logger.info("Resource state loaded from spring configuration xml: " + nameOfSpringFile);
+        logger.info("Resource states loaded from spring configuration xml: " + nameOfSpringFile);
         return resourceStates;
     }
 
