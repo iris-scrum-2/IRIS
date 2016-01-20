@@ -1,4 +1,4 @@
-package com.temenos.interaction.core.loader.impl;
+package com.temenos.interaction.core.loader;
 
 /*
  * #%L
@@ -21,8 +21,6 @@ package com.temenos.interaction.core.loader.impl;
  * #L%
  */
 
-import com.temenos.interaction.core.loader.ResourceStateLoadingStrategy;
-import com.temenos.interaction.core.loader.SpringResourceStateLoadingStrategy;
 import org.junit.Test;
 
 import java.io.File;

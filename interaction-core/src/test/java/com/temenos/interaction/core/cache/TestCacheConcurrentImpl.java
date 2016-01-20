@@ -1,4 +1,4 @@
-package com.temenos.interaction.core.loader.impl;
+package com.temenos.interaction.core.cache;
 
 /*
  * #%L
@@ -21,8 +21,6 @@ package com.temenos.interaction.core.loader.impl;
  * #L%
  */
 
-import com.temenos.interaction.core.cache.CacheConcurrentImpl;
-import com.temenos.interaction.core.cache.CacheExtended;
 import com.temenos.interaction.core.hypermedia.Action;
 import com.temenos.interaction.core.hypermedia.ResourceState;
 import org.junit.Before;

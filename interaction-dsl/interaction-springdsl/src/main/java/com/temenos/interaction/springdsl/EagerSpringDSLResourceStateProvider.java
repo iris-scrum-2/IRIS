@@ -115,7 +115,7 @@ public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateP
     }
 
     private boolean isThereLineSymbol(String resourceStateName) {
-        return resourceStateName.lastIndexOf("-") < 0;
+        return resourceStateName.lastIndexOf("-") >= 0;
     }
 
     private String substringToFirstLineSymbol(String newResourceStateName) {
