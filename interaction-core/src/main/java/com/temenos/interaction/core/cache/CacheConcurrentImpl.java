@@ -1,4 +1,4 @@
-package com.temenos.interaction.core.loader.impl;
+package com.temenos.interaction.core.cache;
 
 /*
  * #%L
@@ -21,8 +21,6 @@ package com.temenos.interaction.core.loader.impl;
  * #L%
  */
 
-import com.temenos.interaction.core.loader.Cache;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -34,7 +32,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author andres
  * @author dgroves
  */
-public class CacheConcurrentImpl<K, V> implements Cache<K, V> {
+public class CacheConcurrentImpl<K, V> implements CacheExtended<K, V> {
     private ConcurrentMap<K, V> cache = new ConcurrentHashMap<K, V>();
 
     @Override

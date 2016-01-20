@@ -1,4 +1,4 @@
-package com.temenos.interaction.core.loader.impl;
+package com.temenos.interaction.core.loader;
 
 /*
  * #%L
@@ -22,7 +22,6 @@ package com.temenos.interaction.core.loader.impl;
  */
 
 import com.temenos.interaction.core.hypermedia.ResourceState;
-import com.temenos.interaction.core.loader.ResourceStateLoadingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -34,51 +33,51 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Loads a list of ResourceState from a location, which should be a filename
+ * Loads a list of ResourceState from a prd name, which should be a filename
  * without a path. This is for compatibility with the Spring class
  * ClassPathXmlApplicationContext.
- * 
+ *
  * @author kwieconkowski
  * @author andres
  * @author dgroves
  */
 public class SpringResourceStateLoadingStrategy implements ResourceStateLoadingStrategy<String> {
     private final Logger logger = LoggerFactory.getLogger(SpringResourceStateLoadingStrategy.class);
+    private final static String MSG_NAME_BLANK_OR_NULL = "Passed PRD file name is NULL or empty";
+    private final static String MSG_PATH_IN_NAME = "Spring PRD file name must not contain the path";
 
     @Override
-    public List<ResourceStateResult> load(String location) {
-        checkLocationOrThrowException(location);
-        ApplicationContext PrdAppCtx = loadSpringContex(location);
+    public List<ResourceStateResult> load(String nameOfSpringFile) {
+        validateSpringNameOtherwiseThrowException(nameOfSpringFile);
+        ApplicationContext PrdAppCtx = loadSpringContext(nameOfSpringFile);
         if (PrdAppCtx == null) {
-            logger.warn("File not found while loading spring configuration in location: " + location);
+            logger.warn("File not found while loading spring configuration in name: " + nameOfSpringFile);
             return null;
         }
         List<ResourceStateResult> resourceStates = new ArrayList<ResourceStateResult>();
         for (Map.Entry<String, ResourceState> springBean : PrdAppCtx.getBeansOfType(ResourceState.class).entrySet()) {
             resourceStates.add(new ResourceStateResult(springBean.getKey(), springBean.getValue()));
         }
-        logger.info("Resource state loaded from spring configuration xml: " + location);
+        logger.info("Resource state loaded from spring configuration xml: " + nameOfSpringFile);
         return resourceStates;
     }
 
-    private ApplicationContext loadSpringContex(String location) {
+    private ApplicationContext loadSpringContext(String nameOfSpringFile) {
         ApplicationContext PrdAppCtx = null;
         try {
-            PrdAppCtx = new ClassPathXmlApplicationContext(location);
+            PrdAppCtx = new ClassPathXmlApplicationContext(nameOfSpringFile);
         } catch (Exception e) {
         }
         return PrdAppCtx;
     }
 
-    private void checkLocationOrThrowException(String location) {
-        if (location == null || location.isEmpty()) {
-            final String msg = "Passed URI is NULL or empty";
-            logger.error(msg);
-            throw new IllegalArgumentException(msg);
-        } else if (!Paths.get(location).getFileName().toString().equals(location)) {
-            final String msg = "Spring PRD file location must contain only the filename (no path)";
-            logger.error(msg);
-            throw new IllegalArgumentException(msg);
+    private void validateSpringNameOtherwiseThrowException(String nameOfSpringFile) {
+        if (nameOfSpringFile == null || nameOfSpringFile.isEmpty()) {
+            logger.error(MSG_NAME_BLANK_OR_NULL);
+            throw new IllegalArgumentException(MSG_NAME_BLANK_OR_NULL);
+        } else if (!Paths.get(nameOfSpringFile).getFileName().toString().equals(nameOfSpringFile)) {
+            logger.error(MSG_PATH_IN_NAME);
+            throw new IllegalArgumentException(MSG_PATH_IN_NAME);
         }
     }
 }

@@ -71,12 +71,20 @@
     <appender-ref ref="STDOUT"/>
   </logger>
 
-  <logger name="com.temenos.interaction.springdsl">
+  <!-- For testing purpose of resource state provider -->
+  <!--
+  <logger name="com.temenos.interaction.springdsl.EagerSpringDSLResourceStateProvider" additivity="false">
     <level value="INFO"/>
     <appender-ref ref="STDOUT"/>
   </logger>
-  
-  <root> 
+
+  <logger name="com.temenos.interaction.core.loader.SpringResourceStateLoadingStrategy" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="STDOUT"/>
+  </logger>
+  -->
+
+  <root>
     <level value="WARN" />
     <appender-ref ref="STDOUT" />
   </root>

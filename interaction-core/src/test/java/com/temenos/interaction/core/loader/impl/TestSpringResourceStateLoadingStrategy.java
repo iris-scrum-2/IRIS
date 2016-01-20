@@ -22,22 +22,23 @@ package com.temenos.interaction.core.loader.impl;
  */
 
 import com.temenos.interaction.core.loader.ResourceStateLoadingStrategy;
+import com.temenos.interaction.core.loader.SpringResourceStateLoadingStrategy;
 import org.junit.Test;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.List;
 
+import static com.temenos.interaction.core.loader.ResourceStateLoadingStrategy.ResourceStateResult;
 import static org.junit.Assert.*;
 
 /**
  * @author kwieconkowski
  */
 public class TestSpringResourceStateLoadingStrategy {
-
     private static final String SPRING_PRD_FILE = "IRIS-testResources-PRD.xml";
     private static final String SPRING_EMPTY_PRD_FILE = "IRIS-empty-PRD.xml";
     private ResourceStateLoadingStrategy<String> loadingStrategy = new SpringResourceStateLoadingStrategy();
-    ;
 
     @Test
     public void load_shouldReturnFilledList() {
@@ -62,7 +63,7 @@ public class TestSpringResourceStateLoadingStrategy {
         try {
             List<ResourceStateResult> result = loadingStrategy.load(null);
         } catch (IllegalArgumentException e) {
-            assertEquals("Passed URI is NULL or empty", e.getMessage());
+            assertEquals(getPrivateErrorMsgFromClass(loadingStrategy, "MSG_NAME_BLANK_OR_NULL"), e.getMessage());
             throw e;
         }
     }
@@ -72,8 +73,18 @@ public class TestSpringResourceStateLoadingStrategy {
         try {
             List<ResourceStateResult> result = loadingStrategy.load(File.separator + SPRING_PRD_FILE);
         } catch (IllegalArgumentException e) {
-            assertEquals("Spring PRD file location must contain only the filename (no path)", e.getMessage());
+            assertEquals(getPrivateErrorMsgFromClass(loadingStrategy, "MSG_PATH_IN_NAME"), e.getMessage());
             throw e;
+        }
+    }
+
+    private String getPrivateErrorMsgFromClass(Object clazz, String fieldName) {
+        try {
+            Field field = clazz.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return (String) field.get(clazz);
+        } catch (Exception e) {
+            return "";
         }
     }
 }

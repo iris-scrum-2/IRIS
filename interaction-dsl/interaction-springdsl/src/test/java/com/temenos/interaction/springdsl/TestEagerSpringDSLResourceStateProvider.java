@@ -21,10 +21,10 @@ package com.temenos.interaction.springdsl;
  * #L%
  */
 
+import com.temenos.interaction.core.cache.CacheConcurrentImpl;
 import com.temenos.interaction.core.hypermedia.ResourceState;
 import com.temenos.interaction.core.hypermedia.ResourceStateProvider;
-import com.temenos.interaction.core.loader.impl.CacheConcurrentImpl;
-import com.temenos.interaction.core.loader.impl.SpringResourceStateLoadingStrategy;
+import com.temenos.interaction.core.loader.SpringResourceStateLoadingStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +52,8 @@ public class TestEagerSpringDSLResourceStateProvider extends TestSpringDSLResour
 
     @Before
     public void setUp() throws Exception {
+        /* We want to enforce that tests in the parent class TestSpringDSLResourceStateProvider
+        are invoked with our children class EagerSpringDSLResourceStateProvider, to ensure back compatibility */
         if (!initialized) {
             initialized = true;
             resourceStateProvider = springDSLResourceStateProvider;
@@ -112,7 +114,7 @@ public class TestEagerSpringDSLResourceStateProvider extends TestSpringDSLResour
     }
 
     private EagerSpringDSLResourceStateProvider getDefaultClass() {
-        return new EagerSpringDSLResourceStateProvider("classpath*:/**/IRIS-*-PRD.xml", new SpringResourceStateLoadingStrategy(), new CacheConcurrentImpl());
+        return getDefaultClass(null);
     }
 
     private EagerSpringDSLResourceStateProvider getDefaultClass(Properties properties) {

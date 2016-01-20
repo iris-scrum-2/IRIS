@@ -1,4 +1,4 @@
-package com.temenos.interaction.core.loader;
+package com.temenos.interaction.core.cache;
 
 /*
  * #%L
@@ -30,7 +30,7 @@ import java.util.Map;
  * @author andres
  * @author dgroves
  */
-public interface Cache<K, V> {
+public interface CacheExtended<K, V> {
     void put(K key, V value);
 
     void put(K key, V value, int ageInSeconds);

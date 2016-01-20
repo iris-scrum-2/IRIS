@@ -21,10 +21,9 @@ package com.temenos.interaction.springdsl;
  * #L%
  */
 
+import com.temenos.interaction.core.cache.CacheExtended;
 import com.temenos.interaction.core.hypermedia.ResourceState;
-import com.temenos.interaction.core.loader.Cache;
 import com.temenos.interaction.core.loader.ResourceStateLoadingStrategy;
-import com.temenos.interaction.core.loader.impl.ResourceStateResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -34,6 +33,8 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
+
+import static com.temenos.interaction.core.loader.ResourceStateLoadingStrategy.ResourceStateResult;
 
 /**
  * Provider of ResourceState that loads all of them at instantiation time from
@@ -48,25 +49,25 @@ import java.util.*;
  * @author andres
  * @author dgroves
  */
-public final class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateProvider {
+public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateProvider {
     private final Logger logger = LoggerFactory.getLogger(EagerSpringDSLResourceStateProvider.class);
 
-    private final Cache<String, ResourceState> cache;
+    private final CacheExtended<String, ResourceState> cache;
     private final String antStylePattern;
     private Set<String> PRDconfigurationFileSources;
     private ResourceStateLoadingStrategy<String> loadingStrategy;
 
-    public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoadingStrategy<String> loadingStrategy, Cache<String, ResourceState> cache) {
+    public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoadingStrategy<String> loadingStrategy, CacheExtended<String, ResourceState> cache) {
         this(antStylePattern, loadingStrategy, cache, null);
     }
 
-    public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoadingStrategy<String> loadingStrategy, Cache<String, ResourceState> cache, Properties beanMap) {
+    public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoadingStrategy<String> loadingStrategy, CacheExtended<String, ResourceState> cache, Properties beanMap) {
         super(beanMap);
         this.antStylePattern = antStylePattern;
         this.loadingStrategy = loadingStrategy;
         this.cache = cache;
         PRDconfigurationFileSources = new LinkedHashSet();
-        discoverAllPrdFiles();
+        discoverAllPrdFilesNames();
         loadAllResourceStates();
     }
 
@@ -76,10 +77,10 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
 
     @Override
     public ResourceState getResourceState(String resourceStateName) {
-        logger.info("Getting resource state: " + resourceStateName);
+        logger.info("Getting resource state name: " + resourceStateName);
         ResourceState resourceState = getResourceStateByNameOrByOldFormatName(resourceStateName);
         if (resourceState == null) {
-            logger.error("Could not find resource state with name: " + resourceStateName);
+            logger.error("Could not find resource state name: " + resourceStateName);
         }
         return resourceState;
     }
@@ -91,24 +92,37 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
 
     private ResourceState getResourceStateByOldFormat(String resourceStateName) {
         ResourceState resourceState = null;
-        String newResourceStateName = resourceStateName;
+        String oldResourceStateName = resourceStateName;
 
-        if (newResourceStateName.contains("-")) {
-            newResourceStateName = newResourceStateName.substring(0, newResourceStateName.indexOf("-"));
-            resourceState = cache.get(newResourceStateName);
-        }
+        oldResourceStateName = substringToFirstLineSymbol(oldResourceStateName);
+        resourceState = cache.get(oldResourceStateName);
 
         if (resourceState == null) {
-            int pos = newResourceStateName.lastIndexOf("-");
-            if (pos < 0) {
-                pos = newResourceStateName.lastIndexOf("_");
-                if (pos > 0) {
-                    newResourceStateName = String.format("%s-%s", newResourceStateName.substring(0, pos), newResourceStateName.substring(pos + 1));
-                    resourceState = cache.get(newResourceStateName);
-                }
-            }
+            oldResourceStateName = replaceLastUnderscoreWithLine(oldResourceStateName);
+            resourceState = cache.get(oldResourceStateName);
         }
         return resourceState;
+    }
+
+    private String replaceLastUnderscoreWithLine(String resourceStateName) {
+        if (!isThereLineSymbol(resourceStateName)) {
+            int pos = resourceStateName.lastIndexOf("_");
+            if (pos > 0) {
+                resourceStateName = String.format("%s-%s", resourceStateName.substring(0, pos), resourceStateName.substring(pos + 1));
+            }
+        }
+        return resourceStateName;
+    }
+
+    private boolean isThereLineSymbol(String resourceStateName) {
+        return resourceStateName.lastIndexOf("-") < 0;
+    }
+
+    private String substringToFirstLineSymbol(String newResourceStateName) {
+        if (newResourceStateName.contains("-")) {
+            newResourceStateName = newResourceStateName.substring(0, newResourceStateName.indexOf("-"));
+        }
+        return newResourceStateName;
     }
 
     @Override
@@ -124,9 +138,9 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
         logger.info(String.format("Attempting to register state: %s, methods: %s, path: %s, using state registeration: %s",
                 stateName, methods, path, stateRegisteration != null ? stateRegisteration : "NULL"));
 
-        if (!loadResourceStatesFromPRD(discoverLocationOfPrdByResourceStateName(stateName, false))
-                && !loadResourceStatesFromPRD(discoverLocationOfPrdByResourceStateName(stateName, true))) {
-            logger.error("Any discovered path pattern is valid");
+        if (!loadResourceStatesFromPRD(discoverNameOfPrdByUsingResourceStateName(stateName, false))
+                && !loadResourceStatesFromPRD(discoverNameOfPrdByUsingResourceStateName(stateName, true))) {
+            logger.error("None of discovered PRD configuration xml file names is valid");
             return;
         }
         // populate maps in parent class from properties files
@@ -148,37 +162,38 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
         }
     }
 
-    private String discoverLocationOfPrdByResourceStateName(String resourceStateName, boolean oldFormat) {
+    private String discoverNameOfPrdByUsingResourceStateName(String resourceStateName, boolean oldFormat) {
         String pathToPRD = null;
         String newResourceStateName = resourceStateName;
 
-        if (newResourceStateName.contains("-")) {
-            newResourceStateName = newResourceStateName.substring(0, newResourceStateName.indexOf("-"));
-        }
-
+        newResourceStateName = substringToFirstLineSymbol(newResourceStateName);
         if (!oldFormat) {
-            pathToPRD = String.format("IRIS-%s-PRD.xml", newResourceStateName);
+            return String.format("IRIS-%s-PRD.xml", newResourceStateName);
         }
-
-        int position = newResourceStateName.lastIndexOf("_");
-        if (position > 3) {
-            pathToPRD = String.format("IRIS-%s-PRD.xml", newResourceStateName.substring(0, position));
-        }
+        pathToPRD = substringToFirstUnderscoreSymbol(newResourceStateName);
 
         return pathToPRD;
     }
 
-    private boolean loadResourceStatesFromPRD(String prdLocation) {
+    private String substringToFirstUnderscoreSymbol(String newResourceStateName) {
+        int position = newResourceStateName.lastIndexOf("_");
+        if (position > 3) {
+            return String.format("IRIS-%s-PRD.xml", newResourceStateName.substring(0, position));
+        }
+        return null;
+    }
+
+    private boolean loadResourceStatesFromPRD(String prdName) {
         List<ResourceStateResult> resourceStates = null;
         Map<String, ResourceState> tmp = new HashMap<String, ResourceState>();
 
-        if (prdLocation == null) {
+        if (prdName == null) {
             return false;
         }
-        logger.info("Loading PRD file: " + prdLocation);
-        resourceStates = loadingStrategy.load(prdLocation);
+        logger.info("Loading PRD file: " + prdName);
+        resourceStates = loadingStrategy.load(prdName);
         if (resourceStates == null) {
-            logger.warn("Could not find any resources with file pattern: " + prdLocation);
+            logger.warn("Could not find any resources with name: " + prdName);
             return false;
         }
         for (ResourceStateResult resourceStateResult : resourceStates) {
@@ -188,7 +203,7 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
         return true;
     }
 
-    private void discoverAllPrdFiles() {
+    private void discoverAllPrdFilesNames() {
         final ResourcePatternResolver patternResolver = new PathMatchingResourcePatternResolver();
         final Resource[] locationsPRD;
         try {
@@ -202,10 +217,10 @@ public final class EagerSpringDSLResourceStateProvider extends SpringDSLResource
                     logger.info("Discovered path to PRD file: " + fileName);
                 }
             } else {
-                logger.warn("Spring DSL eager loading strategy default, could not found any PRD spring configuration xml files");
+                logger.warn("There was not found any PRD configuration xml files using given antStylePattern");
             }
         } catch (IOException e) {
-            String msg = "IOException loading Spring PRD files using eager strategy";
+            String msg = "IOException while loading PRD configuration xml files";
             logger.error(msg, e);
             throw new IllegalStateException(msg, e);
         }

@@ -21,9 +21,10 @@ package com.temenos.interaction.core.loader.impl;
  * #L%
  */
 
+import com.temenos.interaction.core.cache.CacheConcurrentImpl;
+import com.temenos.interaction.core.cache.CacheExtended;
 import com.temenos.interaction.core.hypermedia.Action;
 import com.temenos.interaction.core.hypermedia.ResourceState;
-import com.temenos.interaction.core.loader.Cache;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,7 +39,7 @@ import static org.junit.Assert.*;
  */
 public class TestCacheConcurrentImpl {
 
-    private Cache<String, ResourceState> cache;
+    private CacheExtended<String, ResourceState> cache;
 
     @Before
     public void setUp() throws Exception {
