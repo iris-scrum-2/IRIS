@@ -49,19 +49,19 @@ import com.temenos.interaction.core.loader.ResourceStateLoader;
  * @author andres
  * @author dgroves
  */
-public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateProvider {
-    private final Logger logger = LoggerFactory.getLogger(EagerSpringDSLResourceStateProvider.class);
+public class EagerSpringDSLResourceStateProvider_Old extends SpringDSLResourceStateProvider {
+    private final Logger logger = LoggerFactory.getLogger(EagerSpringDSLResourceStateProvider_Old.class);
 
     private final Cache<String, ResourceState> cache;
     private final String antStylePattern;
     private Set<String> PRDconfigurationFileSources;
     private ResourceStateLoader<String> loadingStrategy;
 
-    public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoader<String> loadingStrategy, Cache<String, ResourceState> cache) {
+    public EagerSpringDSLResourceStateProvider_Old(String antStylePattern, ResourceStateLoader<String> loadingStrategy, Cache<String, ResourceState> cache) {
         this(antStylePattern, loadingStrategy, cache, null);
     }
 
-    public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoader<String> loadingStrategy, Cache<String, ResourceState> cache, Properties beanMap) {
+    public EagerSpringDSLResourceStateProvider_Old(String antStylePattern, ResourceStateLoader<String> loadingStrategy, Cache<String, ResourceState> cache, Properties beanMap) {
         super(beanMap);
         this.antStylePattern = antStylePattern;
         this.loadingStrategy = loadingStrategy;
