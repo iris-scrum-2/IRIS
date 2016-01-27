@@ -46,7 +46,7 @@ import com.temenos.interaction.core.loader.ResourceStateLoader;
 import com.temenos.interaction.core.loader.ResourceStateLoader.ResourceStateResult;
 import com.temenos.interaction.springdsl.DynamicRegistrationResourceStateProvider;
 import com.temenos.interaction.springdsl.StateRegisteration;
-import com.temenos.interaction.translate.mapper.ResourceStateMapper;
+import com.temenos.interaction.core.resource.ResourceStateMapper;
 
 /**
  * 

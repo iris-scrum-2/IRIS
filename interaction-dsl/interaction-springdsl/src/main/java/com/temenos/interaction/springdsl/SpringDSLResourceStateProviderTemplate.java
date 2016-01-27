@@ -35,7 +35,7 @@ import java.util.*;
 
 import static com.temenos.interaction.core.loader.ResourceStateLoader.ResourceStateResult;
 import com.temenos.interaction.core.loader.ResourceStateLoader;
-import com.temenos.interaction.translate.mapper.ResourceStateMapper;
+import com.temenos.interaction.core.resource.ResourceStateMapper;
 
 /**
  *

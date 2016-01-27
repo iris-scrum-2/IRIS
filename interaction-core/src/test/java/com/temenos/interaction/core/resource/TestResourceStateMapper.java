@@ -1,4 +1,4 @@
-package com.temenos.interaction.translate.mapper;
+package com.temenos.interaction.core.resource;
 
 /*
  * #%L
@@ -21,6 +21,7 @@ package com.temenos.interaction.translate.mapper;
  */
 
 
+import com.temenos.interaction.core.resource.ResourceStateMapper;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.mock;

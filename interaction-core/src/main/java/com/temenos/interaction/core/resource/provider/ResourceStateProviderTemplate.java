@@ -26,7 +26,7 @@ import com.temenos.interaction.core.hypermedia.ResourceState;
 import com.temenos.interaction.core.hypermedia.ResourceStateProvider;
 import static com.temenos.interaction.core.loader.ResourceStateLoader.ResourceStateResult;
 import com.temenos.interaction.core.loader.ResourceStateLoader;
-import com.temenos.interaction.translate.mapper.ResourceStateMapper;
+import com.temenos.interaction.core.resource.ResourceStateMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import com.temenos.interaction.core.loader.ResourceStateLoader;
-import com.temenos.interaction.translate.mapper.ResourceStateMapper;
+import com.temenos.interaction.core.resource.ResourceStateMapper;
 
 /**
  *
