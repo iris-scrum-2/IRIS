@@ -241,6 +241,11 @@ public class SpringDSLResourceStateProvider implements ResourceStateProvider, Dy
 		this.stateRegisteration = registerState;
 	}
 
+    @Override
+    public void loadAndMapFiles(Collection<String> files) {
+        throw new UnsupportedOperationException("Not supported.");
+    }
+
 
 	/** Load a Resource State from the appropriate location (file or classpath).
 	 *  There are likely to be several possibilities for where the requested
