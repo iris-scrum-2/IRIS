@@ -56,12 +56,12 @@ import com.temenos.interaction.translate.mapper.ResourceStateMapper;
  * @author hmanchala
  *
  */
-public class RIMResourceStateProvider implements FileMappingResourceStateProvider, 
+public class RIMResourceStateProvider_Old implements FileMappingResourceStateProvider, 
 		DynamicRegistrationResourceStateProvider {
 	
 	private static final boolean REGISTER_WITH_WINK_DURING_INITIALISATION = false;
 	
-	private final Logger logger = LoggerFactory.getLogger(RIMResourceStateProvider.class);
+	private final Logger logger = LoggerFactory.getLogger(RIMResourceStateProvider_Old.class);
 	
 	private final Cache<String, ResourceStateResult> cache;
 	private final String antPattern;
@@ -71,7 +71,7 @@ public class RIMResourceStateProvider implements FileMappingResourceStateProvide
     private Collection<String> sources;
     private ResourceStateMapper mapper;
     	
-	public RIMResourceStateProvider(String antPattern, Cache<String, ResourceStateResult> cache, 
+	public RIMResourceStateProvider_Old(String antPattern, Cache<String, ResourceStateResult> cache, 
 			Collection<String> sources, ResourceStateMapper mapper, ResourceStateLoader<String> loader,
 			StateRegisteration stateRegistration){
 		this.antPattern = antPattern;
@@ -82,13 +82,10 @@ public class RIMResourceStateProvider implements FileMappingResourceStateProvide
 		this.stateRegistration = stateRegistration;
 	}
     
-    public RIMResourceStateProvider(String antPattern, Cache<String, ResourceStateResult> cache, 
-    		ResourceStateMapper mapper, ResourceStateLoader<String> loader) {
+    public RIMResourceStateProvider_Old(String antPattern, Cache<String, ResourceStateResult> cache) {
     	this.antPattern = antPattern;
     	this.cache = cache;
 		this.sources = new HashSet<String>();
-		this.mapper = mapper;
-		this.resourceStateLoader = loader;
 		findRimFilenames();
 		loadAllResourceStates();
 	}
@@ -109,13 +106,6 @@ public class RIMResourceStateProvider implements FileMappingResourceStateProvide
     	if(resolvedResourceState != null){
     		logger.debug("Found resource state: ["+stateName+"]");
     		resourceState = resolvedResourceState.getResourceState();
-    	}else if(cache.isEmpty()){
-    		logger.debug("Finding resource states...");
-    		findRimFilenames();
-    		loadAllResourceStates();
-    		resolvedResourceState = cache.get(stateName);
-    		if(resolvedResourceState != null)
-    			resourceState = cache.get(stateName).getResourceState();
     	}else{
     		logger.error("Could not find resource state: ["+stateName+"]");
     	}
@@ -216,4 +206,18 @@ public class RIMResourceStateProvider implements FileMappingResourceStateProvide
 	public void setStateRegisteration(StateRegisteration stateRegisteration) {
 		this.stateRegistration = stateRegisteration;
 	}
+
+    @Override
+    public void loadAndMapFiles(Collection<String> rimFilenames) {
+        List<ResourceStateResult> results = new ArrayList<>();
+        for (String filename : rimFilenames) {
+            results.addAll(resourceStateLoader.load(filename));
+        }
+        populateCacheAndMapResourceStates(results, true);
+    }
+
+    @Override
+    public void unload(String resourceStateName) {
+        cache.remove(resourceStateName);
+    }
 }

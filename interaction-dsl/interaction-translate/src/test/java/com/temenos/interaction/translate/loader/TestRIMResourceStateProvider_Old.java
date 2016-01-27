@@ -24,15 +24,11 @@ package com.temenos.interaction.translate.loader;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.hamcrest.CoreMatchers.nullValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,16 +51,18 @@ import com.temenos.interaction.core.hypermedia.ResourceStateMachine;
 import com.temenos.interaction.core.loader.ResourceStateLoader;
 import com.temenos.interaction.core.loader.ResourceStateLoader.ResourceStateResult;
 import com.temenos.interaction.springdsl.StateRegisteration;
-import com.temenos.interaction.translate.loader.RIMResourceStateProvider;
 import com.temenos.interaction.translate.mapper.ResourceStateMapper;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.eq;
+import static org.hamcrest.CoreMatchers.nullValue;
 
-public class TestRIMResourceStateProvider {
+public class TestRIMResourceStateProvider_Old {
 	
-	private RIMResourceStateProvider resourceStateProvider;
+	private RIMResourceStateProvider_Old resourceStateProvider;
 	
 	private @Mock ResourceStateLoader<String> loader;
 	private @Mock ResourceStateResult alpha, beta, theta;
-	private @Mock ResourceStateMachine resourceStateMachine;
 	private @Mock StateRegisteration stateRegistration;
 	private @Mock Cache<String, ResourceStateResult> cache;
 	private @Mock ResourceStateMapper mapper;
@@ -95,7 +93,7 @@ public class TestRIMResourceStateProvider {
 		when(mapper.getResourcePathsByState()).thenReturn(null);
 		when(mapper.getResourceStatesByPath()).thenReturn(null);
 		when(mapper.getResourceStatesByRequest()).thenReturn(null);
-		this.resourceStateProvider = new RIMResourceStateProvider(antPattern, 
+		this.resourceStateProvider = new RIMResourceStateProvider_Old(antPattern, 
 				cache, sources, mapper, loader, stateRegistration);
 	}
 
