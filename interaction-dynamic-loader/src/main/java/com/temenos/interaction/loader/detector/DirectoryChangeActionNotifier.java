@@ -63,10 +63,18 @@ public class DirectoryChangeActionNotifier implements DirectoryChangeDetector<Ac
     private Collection<? extends File> resources = new ArrayList();
     private Collection<? extends Action<FileEvent<File>>> listeners = new ArrayList();
     private WatchService watchService;
-    private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService executorService;
     private ScheduledFuture<?> scheduledTask = null;
     private long intervalSeconds = 10;
 
+    public DirectoryChangeActionNotifier() {
+    	executorService = Executors.newSingleThreadScheduledExecutor();
+	}
+    
+    public DirectoryChangeActionNotifier(ScheduledExecutorService executorService){
+    	this.executorService = executorService;
+    }
+    
     @Override
     public void setResources(Collection<? extends File> resources) {
         ArrayList<File> existingResources = new ArrayList<File>();
@@ -115,17 +123,26 @@ public class DirectoryChangeActionNotifier implements DirectoryChangeDetector<Ac
             return;
         }
         try {
-            WatchService ws = FileSystems.getDefault().newWatchService();
+            WatchService ws = getFilesystemWatchService();
             for (File file : resources) {
                 Path filePath = Paths.get(file.toURI());
                 filePath.register(ws, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
             }
 
             watchService = ws;
-            scheduledTask = executorService.scheduleWithFixedDelay(new ListenerNotificationTask(watchService, getListeners(), getIntervalSeconds() * 1000), 5, getIntervalSeconds(), TimeUnit.SECONDS);
+            scheduledTask = executorService.scheduleWithFixedDelay(createNotificationTask(watchService, getListeners(), getIntervalSeconds() * 1000), 5, getIntervalSeconds(), TimeUnit.SECONDS);
         } catch (IOException ex) {
             throw new RuntimeException("Error configuring directory change listener - unexpected IOException", ex);
         }
+    }
+    
+    private ListenerNotificationTask createNotificationTask(WatchService watchService, 
+    		Collection<? extends Action<FileEvent<File>>> listeners, long intervalInSeconds){
+    	return new ListenerNotificationTask(watchService, listeners, intervalInSeconds * 1000);
+    }
+    
+    private WatchService getFilesystemWatchService() throws IOException{
+    	return FileSystems.getDefault().newWatchService();
     }
 
     public long getIntervalSeconds() {
@@ -150,7 +167,7 @@ public class DirectoryChangeActionNotifier implements DirectoryChangeDetector<Ac
      * @author trojanbug
      * @author cmclopes
      */
-    protected static class ListenerNotificationTask implements Runnable {
+    public static class ListenerNotificationTask implements Runnable {
 
         private WatchService watchService;
         private Collection<? extends Action<FileEvent<File>>> listeners;
