@@ -1,5 +1,6 @@
-package com.temenos.interaction.translate.mapper;
+package com.temenos.interaction.core.resource;
 
+import com.temenos.interaction.core.resource.Mapper;
 import java.util.HashMap;
 
 /*

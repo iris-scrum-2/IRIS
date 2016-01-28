@@ -47,7 +47,7 @@
 	</bean>
 
 	<bean id="springDSLResourceStateProvider"
-		  class="com.temenos.interaction.springdsl.EagerSpringDSLResourceStateProvider">
+		  class="com.temenos.interaction.springdsl.InheritedEagerSpringDSLResourceStateProvider">
 		<constructor-arg name="antStylePattern" value="classpath*:/**/IRIS-*-PRD.xml"/>
 		<constructor-arg name="loadingStrategy" ref="loadingStrategyDefault"/>
 		<constructor-arg name="cache" ref="cacheDefault"/>

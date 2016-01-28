@@ -21,14 +21,29 @@ package com.temenos.interaction.springdsl;
  * #L%
  */
 
+import com.temenos.interaction.core.hypermedia.ResourceStateProvider;
+import java.util.Collection;
+
 
 /**
- * Resource state providers that implement this interface will provide a mechanism for dynamically registering 
- * resources i.e. at runtime after startup 
+ * Resource state providers that implement this interface will provide a
+ * mechanism for dynamically registering resources i.e. at runtime after startup
  *
+ * The responsibility of registering resources should be removed from the
+ * provider in the future.
+ * 
  * @author mlambert
- *
+ * @author andres
  */
-public interface DynamicRegistrationResourceStateProvider {
-	void setStateRegisteration(StateRegisteration stateRegisteration);
+public interface DynamicRegistrationResourceStateProvider extends ResourceStateProvider {
+
+    void setStateRegisteration(StateRegisteration stateRegisteration);
+
+    public void loadAndMapFiles(Collection<String> files);
+    
+    /**
+     *
+     * @param resourceStateName
+     */
+    public void unload(String resourceStateName);
 }

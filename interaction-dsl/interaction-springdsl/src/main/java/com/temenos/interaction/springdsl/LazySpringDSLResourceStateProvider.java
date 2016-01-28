@@ -36,17 +36,22 @@ import com.temenos.interaction.core.resource.ResourceStateMapper;
  * @author kwieconkowski
  * @author andres
  */
-public class EagerSpringDSLResourceStateProvider extends SpringDSLResourceStateProviderTemplate implements DynamicRegistrationResourceStateProvider {
+public class LazySpringDSLResourceStateProvider extends SpringDSLResourceStateProviderTemplate implements DynamicRegistrationResourceStateProvider {
 
-    private final Logger logger = LoggerFactory.getLogger(EagerSpringDSLResourceStateProvider.class);
+    private final Logger logger = LoggerFactory.getLogger(LazySpringDSLResourceStateProvider.class);
 
-    public EagerSpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoader<String> resourceStateLoader, Cache<String, ResourceState> cache, StateRegisteration stateRegisteration, ResourceStateMapper mapper, Properties beanMap) {
+    public LazySpringDSLResourceStateProvider(String antStylePattern, ResourceStateLoader<String> resourceStateLoader, Cache<String, ResourceState> cache, StateRegisteration stateRegisteration, ResourceStateMapper mapper, Properties beanMap) {
         super(antStylePattern, resourceStateLoader, cache, stateRegisteration, mapper, beanMap);
     }
 
     @Override
     public ResourceState getResourceState(String resourceStateName) {
         logger.info("Getting resource state name: " + resourceStateName);
+        if (!loadResourceStatesFromPRD(discoverNameOfPrdByUsingResourceStateName(resourceStateName, false))
+                && !loadResourceStatesFromPRD(discoverNameOfPrdByUsingResourceStateName(resourceStateName, true))) {
+            logger.error("PRD configuration file for resource state name " + resourceStateName + "not found.");
+            return null;
+        }
         ResourceState resourceState = getResourceStateByNameOrByOldFormatName(resourceStateName);
         if (resourceState == null) {
             logger.error("Could not find resource state name: " + resourceStateName);
