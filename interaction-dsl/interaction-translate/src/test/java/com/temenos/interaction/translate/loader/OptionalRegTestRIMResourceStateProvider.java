@@ -55,10 +55,22 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Matchers.eq;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.eq;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.eq;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.eq;
+import static org.hamcrest.CoreMatchers.nullValue;
 
-public class TestRIMResourceStateProvider_Old {
+public class OptionalRegTestRIMResourceStateProvider {
 	
-	private RIMResourceStateProvider_Old resourceStateProvider;
+	private OptionalRegRIMResourceStateProvider resourceStateProvider;
 	
 	private @Mock ResourceStateLoader<String> loader;
 	private @Mock ResourceStateResult alpha, beta, theta;
@@ -92,7 +104,7 @@ public class TestRIMResourceStateProvider_Old {
 		when(mapper.getResourcePathsByState()).thenReturn(null);
 		when(mapper.getResourceStatesByPath()).thenReturn(null);
 		when(mapper.getResourceStatesByRequest()).thenReturn(null);
-		this.resourceStateProvider = new RIMResourceStateProvider_Old(antPattern, 
+		this.resourceStateProvider = new OptionalRegRIMResourceStateProvider(antPattern, 
 				cache, sources, mapper, loader, stateRegistration);
 	}
 

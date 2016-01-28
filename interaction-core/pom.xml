@@ -157,12 +157,6 @@
                     <artifactId>spring-test</artifactId>
                     <scope>test</scope>
                 </dependency>
-	 <dependency>
-	  <groupId>com.temenos.interaction</groupId>
-	  <artifactId>interaction-translate</artifactId>
-	  <version>0.8.0-SNAPSHOT</version>
-	  <type>jar</type>
-	 </dependency>
 	</dependencies>
 
 	<!-- SONAR TEST COVERAGE PROFILE-->

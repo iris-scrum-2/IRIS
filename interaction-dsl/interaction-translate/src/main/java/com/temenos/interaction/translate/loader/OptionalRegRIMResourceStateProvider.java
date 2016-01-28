@@ -56,12 +56,13 @@ import com.temenos.interaction.core.resource.ResourceStateMapper;
  * @author hmanchala
  *
  */
-public class RIMResourceStateProvider_Old implements FileMappingResourceStateProvider, 
+@Deprecated
+public class OptionalRegRIMResourceStateProvider implements FileMappingResourceStateProvider, 
 		DynamicRegistrationResourceStateProvider {
 	
 	private static final boolean REGISTER_WITH_WINK_DURING_INITIALISATION = false;
 	
-	private final Logger logger = LoggerFactory.getLogger(RIMResourceStateProvider_Old.class);
+	private final Logger logger = LoggerFactory.getLogger(OptionalRegRIMResourceStateProvider.class);
 	
 	private final Cache<String, ResourceStateResult> cache;
 	private final String antPattern;
@@ -71,7 +72,7 @@ public class RIMResourceStateProvider_Old implements FileMappingResourceStatePro
     private Collection<String> sources;
     private ResourceStateMapper mapper;
     	
-	public RIMResourceStateProvider_Old(String antPattern, Cache<String, ResourceStateResult> cache, 
+	public OptionalRegRIMResourceStateProvider(String antPattern, Cache<String, ResourceStateResult> cache, 
 			Collection<String> sources, ResourceStateMapper mapper, ResourceStateLoader<String> loader,
 			StateRegisteration stateRegistration){
 		this.antPattern = antPattern;
@@ -82,7 +83,7 @@ public class RIMResourceStateProvider_Old implements FileMappingResourceStatePro
 		this.stateRegistration = stateRegistration;
 	}
     
-    public RIMResourceStateProvider_Old(String antPattern, Cache<String, ResourceStateResult> cache) {
+    public OptionalRegRIMResourceStateProvider(String antPattern, Cache<String, ResourceStateResult> cache) {
     	this.antPattern = antPattern;
     	this.cache = cache;
 		this.sources = new HashSet<String>();

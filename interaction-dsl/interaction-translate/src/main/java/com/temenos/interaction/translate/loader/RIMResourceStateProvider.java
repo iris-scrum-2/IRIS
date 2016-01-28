@@ -34,7 +34,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import com.temenos.interaction.core.cache.Cache;
 import com.temenos.interaction.core.hypermedia.ResourceState;
 import com.temenos.interaction.core.loader.ResourceStateLoader;
-import com.temenos.interaction.core.resource.provider.DynamicRegistrationResourceStateProviderTemplate;
+import com.temenos.interaction.springdsl.DynamicRegistrationResourceStateProviderTemplate;
 import com.temenos.interaction.springdsl.DynamicRegistrationResourceStateProvider;
 import com.temenos.interaction.springdsl.StateRegisteration;
 import com.temenos.interaction.core.resource.ResourceStateMapper;

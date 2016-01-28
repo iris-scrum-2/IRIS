@@ -1,4 +1,4 @@
-package com.temenos.interaction.core.resource.provider;
+package com.temenos.interaction.core.hypermedia;
 
 /*
  * #%L
@@ -21,9 +21,6 @@ package com.temenos.interaction.core.resource.provider;
  * #L%
  */
 import com.temenos.interaction.core.cache.Cache;
-import com.temenos.interaction.core.hypermedia.Event;
-import com.temenos.interaction.core.hypermedia.ResourceState;
-import com.temenos.interaction.core.hypermedia.ResourceStateProvider;
 import static com.temenos.interaction.core.loader.ResourceStateLoader.ResourceStateResult;
 import com.temenos.interaction.core.loader.ResourceStateLoader;
 import com.temenos.interaction.core.resource.ResourceStateMapper;

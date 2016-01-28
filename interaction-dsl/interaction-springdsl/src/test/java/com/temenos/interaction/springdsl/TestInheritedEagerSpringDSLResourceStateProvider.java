@@ -40,22 +40,23 @@ import java.util.Set;
 import static org.junit.Assert.*;
 import com.temenos.interaction.core.loader.ResourceStateLoader;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author kwieconkowski
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class TestEagerSpringDSLResourceStateProvider_Old extends TestSpringDSLResourceStateProvider {
+public class TestInheritedEagerSpringDSLResourceStateProvider extends TestSpringDSLResourceStateProvider {
 
     @Autowired
-    private EagerSpringDSLResourceStateProvider_Old springDSLResourceStateProvider;
+    private InheritedEagerSpringDSLResourceStateProvider springDSLResourceStateProvider;
     private boolean initialized;
 
     @Before
     public void setUp() throws Exception {
         /* We want to enforce that tests in the parent class TestSpringDSLResourceStateProvider
-        are invoked with our children class EagerSpringDSLResourceStateProvider_Old, to ensure back compatibility */
+        are invoked with our children class InheritedEagerSpringDSLResourceStateProvider, to ensure back compatibility */
         if (!initialized) {
             initialized = true;
             resourceStateProvider = springDSLResourceStateProvider;
@@ -71,7 +72,7 @@ public class TestEagerSpringDSLResourceStateProvider_Old extends TestSpringDSLRe
 
     @Test
     public void testGetResourceState_oldFormat() {
-        EagerSpringDSLResourceStateProvider_Old springDSLResourceStateProvider = getDefaultClass();
+        InheritedEagerSpringDSLResourceStateProvider springDSLResourceStateProvider = getDefaultClass();
         springDSLResourceStateProvider.unload("SimpleModel_Home_home");
         ResourceState resourceState = springDSLResourceStateProvider.getResourceState("SimpleModel_Home_home");
         assertNotNull(resourceState);
@@ -80,7 +81,7 @@ public class TestEagerSpringDSLResourceStateProvider_Old extends TestSpringDSLRe
 
     @Test
     public void testUnload() {
-        EagerSpringDSLResourceStateProvider_Old springDSLResourceStateProvider = getDefaultClass();
+        InheritedEagerSpringDSLResourceStateProvider springDSLResourceStateProvider = getDefaultClass();
         ResourceState resourceState;
         final String beanName = "SimpleModel_Home-home";
 
@@ -93,7 +94,7 @@ public class TestEagerSpringDSLResourceStateProvider_Old extends TestSpringDSLRe
 
     @Test
     public void testAddState() {
-        EagerSpringDSLResourceStateProvider_Old springDSLResourceStateProvider = getDefaultClass();
+        InheritedEagerSpringDSLResourceStateProvider springDSLResourceStateProvider = getDefaultClass();
         springDSLResourceStateProvider.stateRegisteration = mock(StateRegisteration.class);
 
         final String resourceStateName = "SimpleModel_Home_home-ServiceDocument";
@@ -124,15 +125,15 @@ public class TestEagerSpringDSLResourceStateProvider_Old extends TestSpringDSLRe
         assertEquals("SimpleModel_Home_home", statesByPath.get("/test").toArray()[0]);
     }
 
-    private EagerSpringDSLResourceStateProvider_Old getDefaultClass() {
+    private InheritedEagerSpringDSLResourceStateProvider getDefaultClass() {
         return getDefaultClass(null);
     }
 
-    private EagerSpringDSLResourceStateProvider_Old getDefaultClass(Properties properties) {
+    private InheritedEagerSpringDSLResourceStateProvider getDefaultClass(Properties properties) {
         return getDefaultClass("classpath*:/**/IRIS-*-PRD.xml", new SpringDSLResourceStateLoader(), new CacheConcurrentImpl(), properties);
     }
 
-    private EagerSpringDSLResourceStateProvider_Old getDefaultClass(String antStylePattern, ResourceStateLoader<String> loadingStrategy, Cache<String, ResourceState> cache, Properties properties) {
-        return new EagerSpringDSLResourceStateProvider_Old(antStylePattern, loadingStrategy, cache, properties);
+    private InheritedEagerSpringDSLResourceStateProvider getDefaultClass(String antStylePattern, ResourceStateLoader<String> loadingStrategy, Cache<String, ResourceState> cache, Properties properties) {
+        return new InheritedEagerSpringDSLResourceStateProvider(antStylePattern, loadingStrategy, cache, properties);
     }
 }

@@ -21,7 +21,6 @@ package com.temenos.interaction.springdsl;
  * #L%
  */
 import com.temenos.interaction.core.cache.Cache;
-import com.temenos.interaction.core.resource.provider.DynamicRegistrationResourceStateProviderTemplate;
 import com.temenos.interaction.core.hypermedia.ResourceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

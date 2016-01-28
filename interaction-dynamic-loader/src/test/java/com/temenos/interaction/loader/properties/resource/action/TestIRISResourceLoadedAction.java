@@ -23,7 +23,7 @@ package com.temenos.interaction.loader.properties.resource.action;
 
 
 import com.temenos.interaction.core.loader.PropertiesEvent;
-import com.temenos.interaction.springdsl.EagerSpringDSLResourceStateProvider_Old;
+import com.temenos.interaction.springdsl.InheritedEagerSpringDSLResourceStateProvider;
 import com.temenos.interaction.springdsl.SpringDSLResourceStateProvider;
 import org.junit.Test;
 
@@ -61,7 +61,7 @@ public class TestIRISResourceLoadedAction {
 	public void testForEagerProvider() {
 		IRISResourceLoadedAction action = new IRISResourceLoadedAction();
 
-		SpringDSLResourceStateProvider resourceStateProvider = mock(EagerSpringDSLResourceStateProvider_Old.class);
+		SpringDSLResourceStateProvider resourceStateProvider = mock(InheritedEagerSpringDSLResourceStateProvider.class);
 		action.setResourceStateProvider(resourceStateProvider);
 
 		Properties props = new Properties();

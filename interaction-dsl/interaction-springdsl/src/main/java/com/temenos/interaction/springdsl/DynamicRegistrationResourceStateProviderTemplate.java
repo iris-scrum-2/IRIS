@@ -1,4 +1,4 @@
-package com.temenos.interaction.core.resource.provider;
+package com.temenos.interaction.springdsl;
 
 /*
  * #%L
@@ -20,6 +20,7 @@ package com.temenos.interaction.core.resource.provider;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
+import com.temenos.interaction.core.hypermedia.ResourceStateProviderTemplate;
 import com.temenos.interaction.springdsl.DynamicRegistrationResourceStateProvider;
 import com.temenos.interaction.core.cache.Cache;
 import com.temenos.interaction.core.hypermedia.ResourceState;
